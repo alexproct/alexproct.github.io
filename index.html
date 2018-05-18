@@ -142,7 +142,7 @@ $(document).ready(function () {
 <div id="what-is-the-hmda" class="section level2">
 <h2>What is the HMDA?</h2>
 <p>In 1975, Congress passed the Home Mortgage Disclosure Act (HMDA for short) to address concerns that financial institutions were unfairly denying loans to applicants from certain areas, or making decisions based on protected classes. The act does not impose any financial requirements on the institutions, instead requiring them to publish data for each loan granted or denied. Thus, the impetus is on the general public to determine if lenders are acting unethically.</p>
-<p>We will be working with data disclosed in 2008 - at the height of a major financial crisis primarily caused by an overabundance of risky home loans. While I won’t be addressing the crisis in my analysis, its presence may be seen in &lt;&gt;</p>
+<p>We will be working with data disclosed in 2008 - at the height of a major financial crisis primarily caused by an overabundance of risky home loans. While I largely won’t be addressing the crisis in my analysis, its presence may be seen in explorations of when loans are denied.</p>
 <p>Data specifications for HMDA-disclosed data are available from the Federal Financial Institutions Examination Council (FFIEC). Specifications for 2008 specifically were retrived from <a href="https://www.ffiec.gov/hmda/pdf/spec2008.pdf" class="uri">https://www.ffiec.gov/hmda/pdf/spec2008.pdf</a>; general codes (such as those for action_type) were retrieved from <a href="https://www.ffiec.gov/hmda/pdf/code.pdf" class="uri">https://www.ffiec.gov/hmda/pdf/code.pdf</a>.</p>
 </div>
 <div id="loading-the-data" class="section level2">
@@ -163,20 +163,7 @@ hmda_smpl</code></pre>
 </div>
 <div id="data-wrangling" class="section level1">
 <h1>Data wrangling</h1>
-<p>Now that our data is loaded, we can begin to manipulate it. 45 variables is a lot to work with - let’s see if we can remove &lt;&gt;</p>
-<p>If the percentage &lt;&gt;, we can safely discard the entities.</p>
-<pre class="r"><code># percent of primary applicants listed as more than one race
-nrow(hmda_smpl %&gt;% filter(!is.na(applicant_race_2)))/nrow(hmda_smpl) * 100</code></pre>
-<pre><code>## [1] 0.411118</code></pre>
-<pre class="r"><code># pct interracial couple applicants
-nrow(hmda_smpl %&gt;% filter(applicant_race_1 != co_applicant_race_2))/nrow(hmda_smpl) * 100</code></pre>
-<pre><code>## [1] 0.120173</code></pre>
-<pre class="r"><code># pct sex not recorded
-nrow(hmda_smpl %&gt;% filter(!(applicant_sex == 1 | applicant_sex == 2)))/nrow(hmda_smpl) * 100</code></pre>
-<pre><code>## [1] 13.97686</code></pre>
-<pre class="r"><code># same-sex co-applicant
-nrow(hmda_smpl %&gt;% filter(applicant_sex == co_applicant_sex))/nrow(hmda_smpl) * 100</code></pre>
-<pre><code>## [1] 9.774259</code></pre>
+<p>This data needs a small amount of work to become tidy. It is already in the form of entity x attributes - one row per loan, and one column per data point. We will need to convert encoded numbers into NA or factors later, and we will need to pare down some of the data to make it usable, and modify datatypes from characters to integers.</p>
 <pre class="r"><code># removing extraneous info
 hmda_smpl &lt;- hmda_smpl %&gt;%
   select(loan_amount, action_type, state_code, county_code, race=applicant_race_1, sex=applicant_sex,
